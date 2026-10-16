@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>進階顏色英文記憶遊戲</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .settings-panel {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .setting-row {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .setting-row label {
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .setting-row input[type="number"] {
+            width: 80px;
+            padding: 5px;
+            font-size: 16px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .setting-row input[type="checkbox"] {
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
+        .controls {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        #start-btn {
+            background-color: #2ecc71;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 12px 30px;
+        }
+
+        #start-btn:hover {
+            background-color: #27ae60;
+        }
+
+        #start-btn:disabled, button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        #answer-btn {
+            background-color: #e67e22;
+            display: none;
+        }
+
+        #answer-btn:hover {
+            background-color: #d35400;
+        }
+
+        #display-area {
+            height: 180px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        #color-box {
+            width: 150px;
+            height: 150px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            display: none;
+        }
+
+        #message {
+            font-size: 18px;
+            font-weight: bold;
+            min-height: 40px;
+            margin-bottom: 15px;
+            color: #e74c3c;
+        }
+
+        #answer-display {
+            font-size: 20px;
+            color: #2980b9;
+            font-weight: bold;
+            margin-bottom: 15px;
+            min-height: 30px;
+        }
+
+        .reference-guide {
+            margin-top: 25px;
+            border-top: 2px dashed #eee;
+            padding-top: 15px;
+            text-align: left;
+        }
+
+        .reference-guide h3 {
+            margin-bottom: 8px;
+            font-size: 15px;
+            color: #7f8c8d;
+            text-align: center;
+        }
+
+        .color-chips {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            font-size: 13px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🎨 進階顏色英文記憶遊戲</h1>
+        <p>自訂參數，考考你的瞬間記憶與顏色英文！</p>
+
+        <!-- 參數設定面板 -->
+        <div class="settings-panel">
+            <div class="setting-row">
+                <label for="color-count">顏色數量 (3 ~ 9)：</label>
+                <input type="number" id="color-count" min="3" max="9" value="4">
+            </div>
+            <div class="setting-row">
+                <label for="color-duration">顯示秒數 (0.3 ~ 1.0 秒)：</label>
+                <input type="number" id="color-duration" min="0.3" max="1.0" step="0.1" value="1.0">
+            </div>
+            <div class="setting-row">
+                <label for="use-extra">是否加入添加詞庫 (navy, lime, olive, coral, violet)：</label>
+                <input type="checkbox" id="use-extra">
+            </div>
+        </div>
+
+        <div id="message">準備就緒</div>
+
+        <!-- 顏色顯示區域 -->
+        <div id="display-area">
+            <div id="color-box"></div>
+        </div>
+
+        <!-- 答案顯示區 -->
+        <div id="answer-display"></div>
+
+        <!-- 控制按鈕 -->
+        <div class="controls">
+            <button id="start-btn" onclick="startGame()">開始遊戲</button>
+            <button id="answer-btn" onclick="revealAnswer()">看答案</button>
+        </div>
+
+        <!-- 詞庫對照參考 -->
+        <div class="reference-guide">
+            <h3>目前所有可出題顏色對照表</h3>
+            <div class="color-chips" id="chips-container"></div>
+        </div>
+    </div>
+
+    <script>
+        // 定義基本詞庫與添加詞庫及其對應色碼
+        const baseColors = [
+            { name: 'red', hex: '#e74c3c' },
+            { name: 'orange', hex: '#e67e22' },
+            { name: 'yellow', hex: '#f1c40f', textDark: true },
+            { name: 'green', hex: '#2ecc71' },
+            { name: 'blue', hex: '#3498db' },
+            { name: 'purple', hex: '#9b59b6' },
+            { name: 'gray', hex: '#95a5a6' },
+            { name: 'black', hex: '#2c3e50' },
+            { name: 'brown', hex: '#a0522d' },
+            { name: 'pink', hex: '#ff6b81' },
+            { name: 'white', hex: '#ecf0f1', textDark: true }
+        ];
+
+        const extraColors = [
+            { name: 'navy', hex: '#000080' },
+            { name: 'lime', hex: '#00ff00', textDark: true },
+            { name: 'olive', hex: '#808000' },
+            { name: 'coral', hex: '#ff7f50' },
+            { name: 'violet', hex: '#ee82ee' }
+        ];
+
+        let currentSelectedColors = [];
+        let isPlaying = false;
+
+        // 初始化畫面的對照表
+        function initReferenceGuide() {
+            const container = document.getElementById('chips-container');
+            container.innerHTML = '';
+            
+            // 結合全部顏色展示
+            let allAvailable = [...baseColors, ...extraColors];
+            allAvailable.forEach(c => {
+                const chip = document.createElement('div');
+                chip.className = 'chip';
+                chip.style.backgroundColor = c.hex;
+                chip.innerText = c.name;
+                if(c.textDark) chip.style.color = '#333';
+                container.appendChild(chip);
+            });
+        }
+
+        // 開始遊戲
+        function startGame() {
+            if (isPlaying) return;
+
+            // 取得輸入數值並驗證範圍
+            let countInput = document.getElementById('color-count');
+            let durationInput = document.getElementById('color-duration');
+            let useExtraCheckbox = document.getElementById('use-extra');
+
+            let count = parseInt(countInput.value);
+            let durationSec = parseFloat(durationInput.value);
+
+            // 限制防呆
+            if (isNaN(count) || count < 3) count = 3;
+            if (count > 9) count = 9;
+            countInput.value = count;
+
+            if (isNaN(durationSec) || durationSec < 0.3) durationSec = 0.3;
+            if (durationSec > 1.0) durationSec = 1.0;
+            durationInput.value = durationSec.toFixed(1);
+
+            let durationMs = durationSec * 1000;
+
+            // 組合詞庫
+            let activePool = [...baseColors];
+            if (useExtraCheckbox.checked) {
+                activePool = activePool.concat(extraColors);
+            }
+
+            // 檢查詞庫數量是否足夠抽樣
+            if (activePool.length < count) {
+                alert(`當前可用顏色總數（${activePool.length}個）小於你要求的數量（${count}個），請減少數量或勾選添加詞庫！`);
+                return;
+            }
+
+            isPlaying = true;
+            document.getElementById('start-btn').disabled = true;
+            document.getElementById('answer-btn').style.display = 'none';
+            document.getElementById('answer-display').innerText = '';
+            
+            const message = document.getElementById('message');
+            const colorBox = document.getElementById('color-box');
+            
+            message.innerText = "準備... 3 秒後開始";
+
+            // 隨機抽選不重複顏色
+            currentSelectedColors = getRandomColors(activePool, count);
+
+            let index = 0;
+
+            setTimeout(() => {
+                message.innerText = "請盯著畫面...";
+
+                let intervalId = setInterval(() => {
+                    if (index < currentSelectedColors.length) {
+                        colorBox.style.backgroundColor = currentSelectedColors[index].hex;
+                        colorBox.style.display = 'block';
+
+                        // 留下短暫間隔讓顏色閃動切換
+                        setTimeout(() => {
+                            colorBox.style.display = 'none';
+                        }, durationMs - 100);
+
+                        index++;
+                    } else {
+                        clearInterval(intervalId);
+                        colorBox.style.display = 'none';
+                        message.innerText = "播放完畢！請說出所有顏色的英文單字，完成後點擊按鈕看答案。";
+                        
+                        // 顯示「看答案」按鈕
+                        document.getElementById('answer-btn').style.display = 'inline-block';
+                        document.getElementById('start-btn').disabled = false;
+                        isPlaying = false;
+                    }
+                }, durationMs);
+
+            }, 1000);
+        }
+
+        // 點擊看答案按鈕
+        function revealAnswer() {
+            let answerStr = currentSelectedColors.map(c => c.name).join(' ➔ ');
+            document.getElementById('answer-display').innerHTML = `正確答案：<br>${answerStr}`;
+            document.getElementById('answer-btn').style.display = 'none'; // 點完後隱藏按鈕
+        }
+
+        // 隨機抽樣工具函數
+        function getRandomColors(pool, count) {
+            let shuffled = [...pool].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+
+        window.onload = function() {
+            initReferenceGuide();
+        };
+    </script>
+</body>
+</html>
